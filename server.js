@@ -21,13 +21,26 @@ const server = http.createServer(app);
 // WebSocket server
 const wss = new WebSocket.Server({server});
 
+app.set("view engine", "ejs");
 app.use(express.static('public'));
 app.use(cookieParser(secretKey))
 app.use(cookieEncrypter(secretKey))
 
-const clients = {};
+const clients = [];
 
 let connId = 0;
+
+
+app.get('/qrpage', async (req, res) => {
+    try {
+        const url = "http://s-jonas-24.dev.spsejecna.net/";
+        const qrCodeImage = await QRCode.toDataURL(url);
+        res.render('index', { qrCodeImage: qrCodeImage, username: req.query.username })
+    } catch (err) {
+        console.error('Error generating QR code:', err);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 const conn = mysql.createConnection({
     host: "localhost",
@@ -43,6 +56,12 @@ conn.connect(function (err) {
         return;
     }
 });
+
+
+app.get("/", (req, res) =>
+{
+    res.render("customerpage");
+})
 
 
 app.get("/getAllDrinks", (req, res) => {
@@ -71,7 +90,7 @@ app.get("/register", (req, res) => {
     const arr = getUsernamePasswordFromAuth(req.headers.authorization);
     arr.push(getSqlDate());
     [username, password, date] = arr;
-    
+
     conn.query("select count(*) as amount from Customer where username = ?", [username], (err, result) =>
     {
 
@@ -238,7 +257,7 @@ function generateResponseData() {
                 }
 
 
-                //sendToCustomers(responseData);
+                sendToCustomers(responseData);
                 console.log(JSON.stringify(responseData, null, 2));
             })
         })
@@ -253,8 +272,8 @@ function sendToCustomers(responseData) {
 }
 
 setInterval(() => {
-    // generateResponseData();
-}, 20)
+     generateResponseData();
+}, 2000)
 
 
 generateResponseData();

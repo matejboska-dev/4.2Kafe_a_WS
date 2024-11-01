@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="a"></div>
+
+
+
+<script>
+
+    const ws = new WebSocket('ws://localhost:8082');
+
+    let connId;
+
+    ws.onopen = () => {
+        console.log('Connected to the WebSocket server');
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'init') {
+            connId = data.connId;
+            return;
+        }
+
+
+        let div =  document.getElementById("a");
+
+
+        console.log(data);
+
+        div.innerHTML = "";
+        data.terminal.drink_data.forEach(x=>
+        {
+
+            div.append(document.createTextNode(x.username+":"))
+            x.data.forEach(y=>
+            {
+                div.innerHTML += "<br>";
+                div.append(document.createTextNode(y.drink_name+" "+y.amount));
+
+            })
+            div.innerHTML+= "<br><br>";
+        })
+        div.innerHTML+= "<br>--------------------<br>";
+
+        data.terminal.joined.forEach(x=>
+        {
+            div.append(document.createTextNode(x));
+            div.innerHTML += "<br>";
+        })
+    };
+
+
+    function send()
+    {
+        console.log(requestTxt.value);
+        ws.send(JSON.stringify({connId: connId, request: requestTxt.value }));
+    }
+
+
+
+
+
+</script>
+</body>
+</html>
