@@ -1,0 +1,34 @@
+﻿{
+  "terminal": {
+    "drinks": [
+      {
+        "user": "PetrSvetr",
+        "data": [
+          {
+            "name": "drink1",
+            "amount": "14"
+          },
+          {
+            "name": "drink1",
+            "amount": "14"
+          }
+        ]
+      },
+      {
+        "user": "RakusanDusan",
+        "drink1": "2"
+      }
+    ],
+    "joined": [
+      "PetrSvetr",
+      "fff45"
+    ]
+  },
+  "tasks": [
+    {
+      "text" : "opravit kavovar",
+      "user": "petrsvetr",
+      "completed": "true"
+    }
+  ]
+}

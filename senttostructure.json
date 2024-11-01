@@ -1,0 +1,28 @@
+﻿{
+  "task section (only for the purpose of this file)": {
+    "section": "task",
+    "userId": "Roman",
+    "connId" : "14",
+    "data": {
+      "action": "register|complete",
+      "taskId": "15"
+    }
+  },
+  "order section (only for the purpose of this file)": {
+    "section": "order",
+    "userId": "Roman",
+    "connId" : "14",
+    "data": {
+      "drinks": [
+        {
+          "drinkId": 15,
+          "amount": 10
+        },
+        {
+          "drinkId": 23,
+          "amount": 8
+        }
+      ]
+    }
+  }
+}
