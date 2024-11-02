@@ -4,10 +4,6 @@ const WebSocket = require('ws');
 const mysql = require("mysql");
 const {query, response} = require("express");
 
-const cookieParser = require('cookie-parser')
-const cookieEncrypter = require('cookie-encrypter')
-// we use a 32bits long secret key (with aes256)
-const secretKey = '111proklade222dobra333drezura444'
 const cookieParams = {
     httpOnly: true,
     signed: true,
@@ -23,24 +19,13 @@ const wss = new WebSocket.Server({server});
 
 app.set("view engine", "ejs");
 app.use(express.static('public'));
-app.use(cookieParser(secretKey))
-app.use(cookieEncrypter(secretKey))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }));
 
 const clients = [];
 
 let connId = 0;
 
-
-app.get('/qrpage', async (req, res) => {
-    try {
-        const url = "http://s-jonas-24.dev.spsejecna.net/";
-        const qrCodeImage = await QRCode.toDataURL(url);
-        res.render('index', { qrCodeImage: qrCodeImage, username: req.query.username })
-    } catch (err) {
-        console.error('Error generating QR code:', err);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
 const conn = mysql.createConnection({
     host: "localhost",
@@ -57,10 +42,20 @@ conn.connect(function (err) {
     }
 });
 
+function getUsernamePasswordFromAuth(auth) {
+    const base64Credentials = auth.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf8');
+    //const [username, password] = credentials.split(':');
+    return credentials.split(':');
+}
 
-app.get("/", (req, res) =>
-{
-    res.render("customerpage");
+function getSqlDate() {
+    let date_time = new Date();
+    return date_time.getFullYear() + "-" + (date_time.getMonth() + 1) + "-" + date_time.getDate();
+}
+
+app.get("/", (req, res) => {
+    res.render("authpage");
 })
 
 
@@ -71,57 +66,55 @@ app.get("/getAllDrinks", (req, res) => {
     })
 })
 
+app.get("/getUntakenTasks", (req, res) => {
 
-function getUsernamePasswordFromAuth(auth) {
-    const base64Credentials = auth.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf8');
-    //const [username, password] = credentials.split(':');
-    return credentials.split(':');
-}
-
-function getSqlDate() {
-    let date_time = new Date();
-    return date_time.getFullYear() + "-" + (date_time.getMonth()+1) + "-" + date_time.getDate();
-}
-
-app.get("/register", (req, res) => {
+    conn.query("\n" +
+        "select * from TaskType where id not in (select CustomerTask.task_type_id from CustomerTask)", (err, results) => {
+        res.json(results);
+    })
+})
 
 
-    const arr = getUsernamePasswordFromAuth(req.headers.authorization);
-    arr.push(getSqlDate());
-    [username, password, date] = arr;
+app.post("/register", (req, res) => {
 
-    conn.query("select count(*) as amount from Customer where username = ?", [username], (err, result) =>
-    {
+    conn.query("select count(*) as amount from Customer where username = ?", [req.body.username], (err, result) => {
 
-        if (result[0].amount !== 0)
-        {
+        if (result[0].amount !== 0) {
             res.status(401).send("username exists.");
             return;
         }
 
-        conn.query("insert into Customer(username, password, register_date) values(?,?,?)",[username, password, date], (err, result) =>
-        {
-            res.redirect("/customerpage");
+        conn.query("insert into Customer(username, password, register_date) values(?,?,?)", [req.body.username, req.body.password, getSqlDate()], (err, result) => {
+            res.redirect("/customer?username="+username);
         })
     })
-
-
-
 })
 
 
-app.get("/customerpage", (req, res) => {
+app.get("/login", (req, res) => {
 
 
-    conn.query("select id from Customer where username=? and password =?", getUsernamePasswordFromAuth(req.headers.authorization), (err, customer_id) => {
+    conn.query("select id as customer_id from Customer where username=? and password =?", [req.query.username, req.query.password], (err, results) => {
 
-        res.json(customer_id);
-        //res.json(cookieEncrypter.encryptCookie(customer_id));
-        //res.cookie('customer_id', customer_id, cookieParams).send("index.ejs");
+        //res.json(customer_id);
+        // res.json(cookieEncrypter.encryptCookie(customer_id.toString(),  {algorithm: "aes256", key:secretKey}));
+        //res.cookie('customer_id', customer_id, cookieParams).send("customer_auth.ejs");
+        //console.log(customer_id);
+
+        let id = results[0].customer_id;
+        res.cookie("customer_id", id).redirect("/customer?username="+req.query.username);
 
     });
 })
+
+
+
+app.get("/customer", (req, res) => {
+
+    console.log(req.query.username);
+    res.render("customerpage", {username: req.query.username});
+})
+
 
 wss.on('connection', (ws) => {
     console.log('New client connected');
@@ -200,87 +193,92 @@ function processTask(customer_id, data) {
         conn.query("update CustomerTask set customer_id = ? where task_type_id = ?", [customer_id, data.task_type_id], (err, results) => {
 
         })
-    }
-}
+    } else if (data.action === "complete") {
+        conn.query("delete from CustomerTask where customer_id = ? and task_type_id = ?", [customer_id, data.task_type_id], (err, results) => {
 
-function generateResponseData() {
-    responseData = {}
-    responseData.terminal = {drink_data: [], joined: []}
-    responseData.tasks = []
-
-    let date_time = new Date();
-
-    let year = date_time.getFullYear();
-    let month = date_time.getMonth()+1;
-
-    conn.query("select Customer.username, Drink.name as drink_name, sum(DrinkOrder.amount) as amount from DrinkOrder inner join Drink on DrinkOrder.drink_id = Drink.id \n" +
-        "inner join Customer on DrinkOrder.customer_id = Customer.id\n" +
-        "where month(DrinkOrder.order_date)=? and year(DrinkOrder.order_date)=?\n" +
-        "group by Customer.username, Drink.name", [month, year], (err, results) => {
+        })
 
 
-        results.map(a => a.username)
+    }}
+
+    function generateResponseData() {
+        responseData = {}
+        responseData.terminal = {drink_data: [], joined: []}
+        responseData.tasks = []
+
+        let date_time = new Date();
+
+        let year = date_time.getFullYear();
+        let month = date_time.getMonth() + 1;
+
+        conn.query("select Customer.username, Drink.name as drink_name, sum(DrinkOrder.amount) as amount from DrinkOrder inner join Drink on DrinkOrder.drink_id = Drink.id \n" +
+            "inner join Customer on DrinkOrder.customer_id = Customer.id\n" +
+            "where month(DrinkOrder.order_date)=? and year(DrinkOrder.order_date)=?\n" +
+            "group by Customer.username, Drink.name", [month, year], (err, results) => {
 
 
-        drinks = [];
-        for (username of [...new Set(results.map(a => a.username))]) {
-            // drinks.push({username: username, drinkData: []})
-
-            drinks[username] = []
-            console.log(username)
-            //responseData.terminal.drinks[username] = []
-        }
-
-        for (data of results) {
-            // responseData.terminal.drinks[data.username].push({drinkName: data.drink_name, amount: data.amount})
-
-            drinks[data.username].push({drink_name: data.drink_name, amount: data.amount})
-        }
+            results.map(a => a.username)
 
 
-        for (key of Object.keys(drinks)) {
-            responseData.terminal.drink_data.push(
-                {
-                    username: key,
-                    data: drinks[key]
+            drinks = [];
+            for (username of [...new Set(results.map(a => a.username))]) {
+                // drinks.push({username: username, drinkData: []})
+
+                drinks[username] = []
+                //console.log(username)
+                //responseData.terminal.drinks[username] = []
+            }
+
+            for (data of results) {
+                // responseData.terminal.drinks[data.username].push({drinkName: data.drink_name, amount: data.amount})
+
+                drinks[data.username].push({drink_name: data.drink_name, amount: data.amount})
+            }
+
+
+            for (key of Object.keys(drinks)) {
+                responseData.terminal.drink_data.push(
+                    {
+                        username: key,
+                        data: drinks[key]
+                    })
+
+            }
+
+            conn.query("select Customer.username from Customer where month(Customer.register_date) =? and year(Customer.register_date) =?", [month, year], (err, results) => {
+                responseData.terminal.joined = results.map(a => a.username);
+
+                conn.query("select Customer.username, TaskType.task_text, TaskType.id as task_type_id from CustomerTask left join Customer on CustomerTask.customer_id = Customer.id inner join TaskType on CustomerTask.task_type_id = TaskType.id", (err, results) => {
+
+                    for (data of results) {
+                        responseData.tasks.push({task_text: data.task_text, username: data.username});
+                    }
+
+
+                    sendToCustomers(responseData);
+                    // console.log(JSON.stringify(responseData, null, 2));
                 })
-
-        }
-
-        conn.query("select Customer.username from Customer where month(Customer.register_date) =? and year(Customer.register_date) =?", [month, year], (err, results) => {
-            responseData.terminal.joined = results.map(a => a.username);
-
-            conn.query("select Customer.username, TaskType.task_text, TaskType.id as task_type_id from CustomerTask inner join Customer on CustomerTask.customer_id = Customer.id inner join TaskType on CustomerTask.task_type_id = TaskType.id", (err, results) => {
-
-                for (data of results) {
-                    responseData.tasks.push({task_text: data.task_text, username: data.username});
-                }
-
-
-                sendToCustomers(responseData);
-                console.log(JSON.stringify(responseData, null, 2));
             })
         })
-    })
-}
-
-function sendToCustomers(responseData) {
-    let json = JSON.stringify(responseData);
-    for (client of clients) {
-        client.send(json);
     }
-}
 
-setInterval(() => {
-     generateResponseData();
-}, 2000)
+    function sendToCustomers(responseData) {
+        let json = JSON.stringify(responseData);
+        for (client of clients) {
+            client.send(json);
+        }
+    }
+
+    setInterval(() => {
+        generateResponseData();
+    }, 2000)
 
 
-generateResponseData();
+//generateResponseData();
 
-console.log(getSqlDate())
+//console.log(getSqlDate())
 
-const PORT = 8082;
-server.listen(PORT, () => {
-    console.log(`Server is running on ${PORT}`)
-})
+    const PORT = 8082;
+    server.listen(PORT, () => {
+        console.log(`Server is running on ${PORT}`)
+    });

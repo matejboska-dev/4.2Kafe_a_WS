@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+
+<form action="http://localhost:8082/login" method="GET">
+
+    <label for="login-username-txt">Username</label><input type="text" name="username" id="login-username-txt">
+    <label for="login-password-txt">Password</label><input type="password" name="password" id="login-password-txt">
+
+    <input type="submit" id="login-submit">
+</form>
+
+
+<div></div>
+
+<form action="http://localhost:8082/register" onsubmit="preventDefault(); validate();" method="POST">
+
+    <label for="register-username-txt">Username</label><input type="text" name="username" id="register-username-txt">
+    <label for="register-password-txt">Password</label><input type="password" name="password" id="register-password-txt">
+    <label for="register-confirm-txt">Confirm</label><input type="password" id="register-confirm-txt">
+
+    <input type="submit" id="register-submit">
+</form>
+
+
+
+<script>
+
+    var check = function() {
+        if (document.getElementById('register-password-txt').value ===
+            document.getElementById('register-confirm-txt').value) {
+            document.getElementById('register-submit').enabled = true;
+        } else {
+            document.getElementById('message').enabled = false;
+        }
+    }
+
+    function validate()
+    {
+        if (document.getElementById('register-password-txt').value ===
+            document.getElementById('register-confirm-txt').value) {
+           return true;
+        } else {
+            alert("Password was not confirmed")
+            return false;
+        }
+    }
+
+</script>
+</body>
+</html>

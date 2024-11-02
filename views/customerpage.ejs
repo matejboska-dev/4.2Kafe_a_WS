@@ -4,12 +4,31 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
-<body>
+<body style="display: flex">
+
+    <div id="welcome">Welcome <%=locals.username%></div>
+
+
+
     <div id="a"></div>
-
-
+    <div id="b"></div>
+    <button onclick=""></button>
 
 <script>
+
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+
+
+
+        const parts = value.split(`; ${name}=`);
+
+        console.log(value);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    getCookie("customer_id");
 
     const ws = new WebSocket('ws://localhost:8082');
 
@@ -27,37 +46,46 @@
         }
 
 
-        let div =  document.getElementById("a");
+        let div_a =  document.getElementById("a");
+        let div_b =  document.getElementById("b");
 
 
         console.log(data);
 
-        div.innerHTML = "";
+        div_a.innerHTML = "";
         data.terminal.drink_data.forEach(x=>
         {
 
-            div.append(document.createTextNode(x.username+":"))
+            div_a.append(document.createTextNode(x.username+":"))
             x.data.forEach(y=>
             {
-                div.innerHTML += "<br>";
-                div.append(document.createTextNode(y.drink_name+" "+y.amount));
+                div_a.innerHTML += "<br>";
+                div_a.append(document.createTextNode(y.drink_name+" "+y.amount));
 
             })
-            div.innerHTML+= "<br><br>";
+            div_a.innerHTML+= "<br><br>";
         })
-        div.innerHTML+= "<br>--------------------<br>";
+        div_a.innerHTML+= "<br>--------------------<br>";
 
         data.terminal.joined.forEach(x=>
         {
-            div.append(document.createTextNode(x));
-            div.innerHTML += "<br>";
+            div_a.append(document.createTextNode(x));
+            div_a.innerHTML += "<br>";
         })
+
+
+        div_b.innerHTML = "";
+        data.tasks.forEach(x=>
+        {
+            div_b.append(document.createTextNode(x.task_text+" > "+x.username));
+            div_b.innerHTML += "<br>";
+        })
+
     };
 
 
     function send()
     {
-        console.log(requestTxt.value);
         ws.send(JSON.stringify({connId: connId, request: requestTxt.value }));
     }
 
