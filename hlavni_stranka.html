@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hlavní Stránka</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .section {
+            display: none;
+        }
+        .active {
+            display: block;
+            text-align: center; /* Centering text in active sections */
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .toggle-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #555;
+            color: #fff;
+            border-radius: 5px;
+        }
+        .toggle-button.active {
+            background-color: #007bff;
+        }
+        .slider-section {
+            text-align: center; /* Centering labels and sliders */
+        }
+        .submit-button {
+            display: inline-block;
+            margin-top: 15px; /* Adding space above the button */
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #555;
+            color: #fff;
+            border-radius: 5px;
+        }
+        /* Specific styles for terminal */
+        .console-body p {
+            text-align: left; /* Ensures terminal paragraphs are left-aligned */
+            margin: 0; /* Optional: Remove default margin */
+        }
+
+        .toggle-button img {
+            max-width: 30px; /* Set maximum width */
+            max-height: 30px; /* Set maximum height */
+            width: auto; /* Maintain aspect ratio */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Center images if needed */
+            margin: auto; /* Center images within the button */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <button class="toggle-button" onclick="showSection('objednavka')">
+            <img src="img/kafeimg.png" alt="Objednavka" />
+        </button>
+        <button class="toggle-button" onclick="showSection('hlaseni')">
+            <img src="img/problemICON.png" alt="Hlaseni Problemu" />
+        </button>
+        <button class="toggle-button" onclick="showSection('terminal')">
+            <img src="img/terminalICON.png" alt="Terminal" />
+        </button>
+    </div>
+    
+
+    <!-- Objednavka Section -->
+<div id="objednavka" class="section active">
+    <h1>Burza</h1>
+    <div class="slider-section">
+        <div class="slider-item">
+            <label>Milk</label>
+            <input type="range" min="0" max="10" value="0" class="slider">
+            <span class="slider-value">0</span>
+        </div>
+
+        <div class="slider-item">
+            <label>Espresso</label>
+            <input type="range" min="0" max="10" value="0" class="slider">
+            <span class="slider-value">0</span>
+        </div>
+
+        <div class="slider-item">
+            <label>Coffee</label>
+            <input type="range" min="0" max="10" value="0" class="slider">
+            <span class="slider-value">0</span>
+        </div>
+
+        <div class="slider-item">
+            <label>Long</label>
+            <input type="range" min="0" max="10" value="0" class="slider">
+            <span class="slider-value">0</span>
+        </div>
+
+        <div class="slider-item">
+            <label>Doppio+</label>
+            <input type="range" min="0" max="10" value="0" class="slider">
+            <span class="slider-value">0</span>
+        </div>
+    </div>
+    <button class="submit-button">Odeslat</button>
+</div>
+
+
+    <!-- Hlaseni Problemu Section -->
+    <div id="hlaseni" class="section">
+        <h2>Výběr problému</h2>
+        <br>
+        <select id="problemDropdown">
+            <option value="">Vyberte problém</option>
+            <option value="Došlo mléko">Došlo mléko</option>
+            <option value="Došlo espresso">Došlo espresso</option>
+            <option value="Došlo coffee">Došlo coffee</option>
+            <option value="Došel long">Došel long</option>
+            <option value="Došlo doppio+">Došlo doppio+</option>
+            <option value="Vyčistit kávovar">Vyčistit kávovar</option>
+        </select>
+        <br><br>
+        <button id="addProblemButton">Odeslat</button>
+        <br><br>
+        <h2>Seznam problémů</h2>
+        <div id="problemList"></div>
+    </div>
+
+    <!-- Terminal Section -->
+    <div id="terminal" class="section">
+        <div class="body-console">
+            <div class="console">
+                <header class="console-header">
+                    <p>Terminál</p>
+                </header>
+                <div class="console-body">
+                    <p>> Objednávky:</p>
+                    <p></p>
+                    <p>-------------</p>
+                    <p>> Nově připojeni:</p>
+                    <p>> </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
