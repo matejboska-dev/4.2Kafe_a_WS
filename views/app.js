@@ -23,9 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Add selected problem to the list
-    const addProblemButton = document.getElementById("addProblemButton");
-    const problemDropdown = document.getElementById("problemDropdown");
-    const problemList = document.getElementById("problemList");
+    const addProblemButton = document.getElementById("add-problem-button");
+    const problemDropdown = document.getElementById("problem-dropdown");
+    const problemList = document.getElementById("problem-list");
 
     addProblemButton.addEventListener("click", () => {
         const selectedProblem = problemDropdown.value;
@@ -56,10 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-const registerButton = document.getElementById('registerButton');
-const loginButton = document.getElementById('loginButton');
-const valuesRegister = document.getElementById('valuesRegister');
-const valuesLogin = document.getElementById('valuesLogin');
+const registerButton = document.getElementById('register-button');
+const loginButton = document.getElementById('login-button');
+const valuesRegister = document.getElementById('values-register');
+const valuesLogin = document.getElementById('values-login');
 
 valuesRegister.style.display = 'block';
 valuesLogin.style.display = 'none';
@@ -73,18 +73,18 @@ function setActiveButton(button) {
 registerButton.addEventListener('click', () => {
     valuesRegister.style.display = 'block';
     valuesLogin.style.display = 'none';
-    setActiveButton(registerButton); // Set register button as active
+    setActiveButton(register-button); // Set register button as active
 });
 
 loginButton.addEventListener('click', () => {
     valuesRegister.style.display = 'none';
     valuesLogin.style.display = 'block';
-    setActiveButton(loginButton); // Set login button as active
+    setActiveButton(login-button); // Set login button as active
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    const problemDropdown = document.getElementById("problemDropdown");
-    const problemList = document.getElementById("problemList");
+    const problemDropdown = document.getElementById("problem-dropdown");
+    const problemList = document.getElementById("problem-list");
 
     // Function to add a selected problem to the list
     document.querySelector(".problem-submit-button").addEventListener("click", () => {
