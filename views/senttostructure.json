@@ -15,7 +15,7 @@
     "data": {
       "drinks": [
         {
-          "drinkId": 15,
+          "drink_id": 15,
           "amount": 10
         },
         {

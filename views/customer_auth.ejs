@@ -5,35 +5,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAFE APP</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
-    <div class="prihlasovaci-body">
+<div class="prihlasovaci-body">
     <div class="header-container">
-        <img src="../img/smileICON.png" alt="Smiley Face" name="smiley-face">
+        <img src="img/smileICON.png" alt="Smiley Face" name="smiley-face">
         <h1>Welcome to KAFE APP</h1>
-        <img src="../img/coffeeICON.png" alt="Coffee Icon" name="coffee-icon">
+        <img src="img/coffeeICON.png" alt="Coffee Icon" name="coffee-icon">
     </div>
 
     <div name="top-buttons">
-        <button id="register-button">Register</button>
-        <button id="login-button">Login</button>
+        <button id="register-button" class="button">Register</button>
+        <button id="login-button" class="button">Login</button>
     </div>
 
-    <div id="values-register">
-        <p>Username</p> <input type="text">
-        <p>Password</p> <input type="password">
+    <form id="values-register" action="http://localhost:8082/register">
+        <p>Username</p> <input type="text" name="username">
+        <p>Password</p> <input type="password" name="password">
         <p>Confirm Password</p> <input type="password">
-    </div>
+        <input type="submit" class="submit-button">
+    </form>
 
-    <div id="values-login">
-        <p>Username</p> <input type="text">
-        <p>Password</p> <input type="password">
-    </div>
+    <form id="values-login" action="http://localhost:8082/login">
+        <p>Username</p> <input type="text" name="username">
+        <p>Password</p> <input type="password" name="password">
+        <div class="filler"></div>
+        <input type="submit" class="submit-button">
+    </form>
     <br>
-    <button type="submit">Submit</button>
-    <img src="../img/kafeimg.png" alt="Kafe Image" name="kafeimg">
-    </div>
-    <script src="app.js"></script>
+
+    <img src="img/kafeimg.png" alt="Kafe Image" name="kafeimg">
+</div>
+<script src="app.js"></script>
 </body>
 </html>

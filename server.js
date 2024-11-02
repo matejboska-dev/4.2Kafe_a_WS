@@ -2,13 +2,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const mysql = require("mysql");
-const {query, response} = require("express");
 
-const cookieParams = {
-    httpOnly: true,
-    signed: true,
-    maxAge: 300000
-}
 
 // Create an express app and HTTP server
 const app = express();
@@ -18,7 +12,7 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
 app.set("view engine", "ejs");
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/public'));
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
 
@@ -55,7 +49,7 @@ function getSqlDate() {
 }
 
 app.get("/", (req, res) => {
-    res.render("authpage");
+    res.render("customer_auth");
 })
 
 
@@ -112,7 +106,7 @@ app.get("/login", (req, res) => {
 app.get("/customer", (req, res) => {
 
     console.log(req.query.username);
-    res.render("customerpage", {username: req.query.username});
+    res.render("customer_page", {username: req.query.username});
 })
 
 
@@ -126,32 +120,37 @@ wss.on('connection', (ws) => {
     connId++;
     ws.on('message', (message) => {
 
+
+
         const parsedMessage = JSON.parse(message);
 
-        const userId = cookieEncrypter.decryptCookie(parsedMessage.userId);
 
-        const section = parsedMessage.section;
+        let ws_data = parsedMessage.ws_data;
+        const customer_id = ws_data.customer_id;
 
+        const section = ws_data.section;
+
+        console.log(section);
         switch (section) {
             case "order":
-                saveOrder(userId, parsedMessage.data)
+                saveOrder(customer_id, ws_data.data)
                 break;
             case "task":
-                processTask(userId, parsedMessage.data)
+                processTask(customer_id, ws_data.data)
                 break;
 
         }
 
 
-        const {connId, request} = parsedMessage;
-
-        console.log("incoming message from " + message);
-        const client = clients[connId];
-
-        if (client.readyState === WebSocket.OPEN && request === ":)") {
-            console.log("sending a joke");
-            client.send(JSON.stringify({type: 'joke', response: jokes[Math.floor(Math.random() * jokes.length)]}));
-        }
+        // const {connId, request} = parsedMessage;
+        //
+        // console.log("incoming message from " + message);
+        // const client = clients[connId];
+        //
+        // if (client.readyState === WebSocket.OPEN && request === ":)") {
+        //     console.log("sending a joke");
+        //     client.send(JSON.stringify({type: 'joke', response: jokes[Math.floor(Math.random() * jokes.length)]}));
+        // }
     });
 
     // When a client disconnects
@@ -165,17 +164,24 @@ function saveOrder(customer_id, data) {
 
     let drinks = data.drinks;
 
-    let query = `INSERT INTO DrinkOrder (date, customer_id, drink_id) values `;
+    let query = `INSERT INTO DrinkOrder (customer_id, drink_id, amount, order_date) values `;
 
+    let i = 0;
     for (drink of drinks) {
-        query += `${(i === 0) ? "" : ","}('${customer_id}','${drink.drinkId}','${drink.amount}','${getSqlDate()}') `
+
+        if(drink.amount != 0)
+        {
+            console.log(drink.amount);
+            query += `${(i === 0) ? "" : ","}('${customer_id}','${drink.drink_id}','${drink.amount}','${getSqlDate()}') `;
+            i++;
+        }
     }
 
     console.log(query);
 
     conn.query(query), (err, results) => {
         if (err) {
-            //res.status(500).send('Error saving drinks');
+            res.status(500).send('Error saving drinks');
             return;
         }
         console.log(results);

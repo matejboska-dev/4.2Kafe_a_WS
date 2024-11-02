@@ -4,21 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hlavní Stránka</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
     <style>
         .section {
             display: none;
         }
+
         .active {
             display: block;
             text-align: center; /* Centering text in active sections */
         }
+
         .button-container {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
         }
+
         .toggle-button {
             padding: 10px 20px;
             font-size: 16px;
@@ -28,12 +31,15 @@
             color: #fff;
             border-radius: 5px;
         }
+
         .toggle-button.active {
             background-color: #007bff;
         }
+
         .slider-section {
             text-align: center; /* Centering labels and sliders */
         }
+
         .submit-button {
             display: inline-block;
             margin-top: 15px; /* Adding space above the button */
@@ -45,8 +51,9 @@
             color: #fff;
             border-radius: 5px;
         }
+
         /* Specific styles for terminal */
-        .console-body p {
+        #console-body p {
             text-align: left; /* Ensures terminal paragraphs are left-aligned */
             margin: 0; /* Optional: Remove default margin */
         }
@@ -59,99 +66,213 @@
             display: block; /* Center images if needed */
             margin: auto; /* Center images within the button */
         }
-        
+
     </style>
 </head>
 <body>
-    <div class="button-container">
-        <button class="toggle-button" onclick="showSection('objednavka')">
-            <img src="../img/kafeimg.png" alt="Objednavka" />
-        </button>
-        <button class="toggle-button" onclick="showSection('hlaseni')">
-            <img src="../img/problemICON.png" alt="Hlaseni Problemu" />
-        </button>
-        <button class="toggle-button" onclick="showSection('terminal')">
-            <img src="../img/terminalICON.png" alt="Terminal" />
-        </button>
-    </div>
-    
+<div class="button-container">
+    <button class="toggle-button" onclick="showSection('objednavka')">
+        <img src="img/kafeimg.png" alt="Objednavka"/>
+    </button>
+    <button class="toggle-button" onclick="showSection('hlaseni')">
+        <img src="img/problemICON.png" alt="Hlaseni Problemu"/>
+    </button>
+    <button class="toggle-button" onclick="showSection('terminal')">
+        <img src="img/terminalICON.png" alt="Terminal"/>
+    </button>
+</div>
 
-    <!-- Objednavka Section -->
+<h1 style="text-align: center">Uživatel <%= locals.username %></h1>
+<!-- Objednavka Section -->
 <div id="objednavka" class="section active">
     <h1>Burza</h1>
-    <div class="slider-section">
-        <div class="slider-item">
-            <label>Milk</label>
-            <input type="range" min="0" max="10" value="0" class="slider">
-            <span class="slider-value">0</span>
-        </div>
 
-        <div class="slider-item">
-            <label>Espresso</label>
-            <input type="range" min="0" max="10" value="0" class="slider">
-            <span class="slider-value">0</span>
-        </div>
 
-        <div class="slider-item">
-            <label>Coffee</label>
-            <input type="range" min="0" max="10" value="0" class="slider">
-            <span class="slider-value">0</span>
-        </div>
+    <div class="form-container">
 
-        <div class="slider-item">
-            <label>Long</label>
-            <input type="range" min="0" max="10" value="0" class="slider">
-            <span class="slider-value">0</span>
-        </div>
+        <div id="coffee-form">
 
-        <div class="slider-item">
-            <label>Doppio+</label>
-            <input type="range" min="0" max="10" value="0" class="slider">
-            <span class="slider-value">0</span>
+            <div id="drink-list-container" class="list-container"></div>
+
+            <button class="submit-button" onclick="sendDrinks()">Odeslat</button>
         </div>
     </div>
-    <button class="submit-button">Odeslat</button>
+
 </div>
 
 
-    <!-- Hlaseni Problemu Section -->
-    <div id="hlaseni" class="section">
-        <h2>Výběr problému</h2>
-        <br>
-        <select id="problem-dropdown">
-            <option value="">Vyberte problém</option>
-            <option value="Došlo mléko">Došlo mléko</option>
-            <option value="Došlo espresso">Došlo espresso</option>
-            <option value="Došlo coffee">Došlo coffee</option>
-            <option value="Došel long">Došel long</option>
-            <option value="Došlo doppio+">Došlo doppio+</option>
-            <option value="Vyčistit kávovar">Vyčistit kávovar</option>
-        </select>
-        <br><br>
-        <button id="add-problem-button">Odeslat</button>
-        <br><br>
-        <h2>Seznam problémů</h2>
-        <div id="problem-list"></div>
-    </div>
+<!-- Hlaseni Problemu Section -->
+<div id="hlaseni" class="section">
+    <h2>Výběr problému</h2>
+    <br>
+    <select id="problem-dropdown">
+        <option value="">Vyberte problém</option>
+        <option value="Došlo mléko">Došlo mléko</option>
+        <option value="Došlo espresso">Došlo espresso</option>
+        <option value="Došlo coffee">Došlo coffee</option>
+        <option value="Došel long">Došel long</option>
+        <option value="Došlo doppio+">Došlo doppio+</option>
+        <option value="Vyčistit kávovar">Vyčistit kávovar</option>
+    </select>
+    <br><br>
+    <button id="add-problem-button" class="button">Odeslat</button>
+    <br><br>
+    <h2>Seznam problémů</h2>
+    <div id="problem-list"></div>
+</div>
 
-    <!-- Terminal Section -->
-    <div id="terminal" class="section">
-        <div class="body-console">
-            <div class="console">
-                <header class="console-header">
-                    <p>Terminál</p>
-                </header>
-                <div class="console-body">
-                    <p>> Objednávky:</p>
-                    <p></p>
-                    <p>-------------</p>
-                    <p>> Nově připojeni:</p>
-                    <p>> </p>
-                </div>
+<!-- Terminal Section -->
+<div id="terminal" class="section">
+    <div class="body-console">
+        <div class="console">
+            <header class="console-header">
+                <p>Terminál</p>
+            </header>
+            <div id="console-body">
+                <p>> Objednávky:</p>
+                <p></p>
+                <p>-------------</p>
+                <p>> Nově připojeni:</p>
+                <p>> </p>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="app.js"></script>
+
+
+<script src="app.js"></script>
+
+<script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+
+        console.log(value);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    const xhttp = new XMLHttpRequest();
+
+    xhttp.onload = function () {
+        const list = document.getElementById("drink-list-container");
+
+
+        let drinks = JSON.parse(this.responseText);
+
+        for (drink of drinks) {
+            list.innerHTML += `
+                <div class="slider-container">
+                    <label class="slider-label" for="${drink.id}">${drink.name}</label>
+                    <div class="break"></div>
+                    <input class="drink-slider" type="range" name="${drink.id}" min="0" max="10" value="0">
+                    <span class="slider-value" >0</span>
+                </div>`
+        }
+
+        document.querySelectorAll(".drink-slider").forEach(slider => {
+            const valueDisplay = slider.nextElementSibling; // Select the <span> element next to the slider
+            slider.addEventListener("input", () => {
+                valueDisplay.textContent = slider.value; // Update the <span> with slider's current value
+            });
+        });
+
+
+    }
+    xhttp.open("GET", "http://localhost:8082/getAllDrinks", true);
+    xhttp.send();
+
+
+    const addProblemButton = document.getElementById("add-problem-button");
+    const problemDropdown = document.getElementById("problem-dropdown");
+    const problemList = document.getElementById("problem-list");
+
+    addProblemButton.addEventListener("click", () => {
+        const selectedProblem = problemDropdown.value;
+
+        if (selectedProblem) {
+            const problemItem = document.createElement("div");
+            problemItem.className = "problem-item";
+            problemItem.textContent = selectedProblem;
+            problemList.appendChild(problemItem);
+
+            // Reset dropdown after adding the problem
+            problemDropdown.value = "";
+        } else {
+            alert("Please select a problem to add.");
+        }
+    });
+
+
+    let customer_id = getCookie("customer_id");
+
+    const ws = new WebSocket('ws://localhost:8082');
+
+    let connId;
+
+    ws.onopen = () => {
+        console.log('Connected to the WebSocket server');
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'init') {
+            connId = data.connId;
+            return;
+        }
+
+
+        let console_body = document.getElementById("console-body");
+        let tasks = document.getElementById("console-body");
+
+
+        console_body.innerHTML = "";
+        data.terminal.drink_data.forEach(x => {
+
+            console_body.append(document.createTextNode(x.username + ":"))
+            x.data.forEach(y => {
+                console_body.innerHTML += "<br>";
+                console_body.append(document.createTextNode(y.drink_name + " " + y.amount));
+
+            })
+            console_body.innerHTML += "<br><br>";
+        })
+        console_body.innerHTML += "<br>--------------------<br>";
+
+        data.terminal.joined.forEach(x => {
+            console_body.append(document.createTextNode(x));
+            console_body.innerHTML += "<br>";
+        })
+
+
+        // tasks.innerHTML = "";
+        // data.tasks.forEach(x => {
+        //     tasks.append(document.createTextNode(x.task_text + " > " + x.username));
+        //     tasks.innerHTML += "<br>";
+        // })
+
+    };
+
+
+    function sendDrinks() {
+
+        const ws_data = {};
+        ws_data.section = "order";
+        ws_data.customer_id = customer_id;
+        ws_data.data = {drinks: []}
+
+        document.querySelectorAll(".drink-slider").forEach(slider => {
+
+            ws_data.data.drinks.push({drink_id: slider.name, amount: slider.value });
+        });
+
+        const obj = {name: "John", age: 30, city: "New York"};
+        console.log(JSON.stringify({ws_data}));
+
+        ws.send(JSON.stringify({ws_data}));
+    }
+
+
+</script>
 </body>
 </html>
