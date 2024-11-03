@@ -59,29 +59,4 @@ loginButton.addEventListener('click', () => {
     setActiveButton(login-button); // Set login button as active
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const problemDropdown = document.getElementById("problem-dropdown");
-    const problemList = document.getElementById("problem-list");
 
-    // Function to add a selected problem to the list
-    document.querySelector(".problem-submit-button").addEventListener("click", () => {
-        const selectedProblem = problemDropdown.value;
-        if (selectedProblem) {
-            const problemItem = document.createElement("div");
-            problemItem.className = "problem-item";
-            problemItem.innerHTML = `
-                <div>⚠️ ${selectedProblem}</div>
-                <div>by User1</div>
-            `;
-            problemList.appendChild(problemItem);
-            problemDropdown.value = ""; // Reset dropdown
-        }
-    });
-
-    // Update slider values in real-time
-    document.querySelectorAll(".slider").forEach(slider => {
-        slider.addEventListener("input", function() {
-            this.nextElementSibling.textContent = this.value; // Update the adjacent span with slider's value
-        });
-    });
-});

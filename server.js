@@ -54,6 +54,10 @@ app.get("/", (req, res) => {
 })
 
 
+app.get("/terminal", (req, res) => {
+    res.render("terminal");
+})
+
 app.get("/getAllDrinks", (req, res) => {
 
     conn.query("SELECT * FROM drink", (err, results) => {
@@ -80,7 +84,7 @@ app.post("/register", (req, res) => {
         }
 
         conn.query("insert into Customer(username, password, register_date) values(?,?,?)", [req.body.username, req.body.password, getSqlDate()], (err, result) => {
-            res.cookie("username", req.query.username).cookie("customer_id", result.insertId).redirect("/customer");
+            res.cookie("username", req.body.username).cookie("customer_id", result.insertId).redirect("/customer");
         })
     })
 })
@@ -210,6 +214,15 @@ function processTask(customer_id, data) {
             "inner join Customer on DrinkOrder.customer_id = Customer.id\n" +
             "where month(DrinkOrder.order_date)=? and year(DrinkOrder.order_date)=?\n" +
             "group by Customer.username, Drink.name", [month, year], (err, results) => {
+
+
+            if(!results)
+            {
+                sendToCustomers(JSON.stringify({type: "error", message: "Zatim zadna data."}));
+                return;
+            }
+
+
 
 
             results.map(a => a.username)

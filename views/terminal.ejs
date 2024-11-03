@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+    <style>
+
+        body
+        {
+            background-color: black;
+            padding: 50px;
+        }
+        p
+        {
+            color: lime;
+
+        }
+        #console-body
+        {
+            margin: 25px;
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="console-body">
+
+    </div>
+
+<script>
+    months =
+        [
+            "leden",
+            "únor",
+            "březen",
+            "duben", "květěn",
+            "červen",
+            "červenec", "srpen", "září",
+            "říjen",
+            "listopad",
+            "prosinec"
+
+        ]
+
+    const currentDate = new Date();
+    const currentMonth = months[currentDate.getMonth()];
+    const currentYear = currentDate.getFullYear();
+
+    const ws = new WebSocket('ws://s-jonas-24.dev.spsejecna.net');
+
+    let connId;
+
+    ws.onopen = () => {
+        console.log('Connected to the WebSocket server');
+    };
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'init') {
+            connId = data.connId;
+            return;
+        }
+
+
+        let console_body = document.getElementById("console-body");
+
+
+        console_body.innerHTML = "";
+        console_body.innerHTML += `<p>UZIVATELSKE UDAJE: ${currentMonth} ${currentYear} </p>`;
+        console_body.innerHTML += `<p>-----</p>`
+        data.terminal.drink_data.forEach(x => {
+
+            console_body.innerHTML += `<p>${x.username}:</p>`
+            x.data.forEach(y => {
+
+                console_body.innerHTML += `<p>     -${y.drink_name + " x" + y.amount}</p>`
+
+            })
+            console_body.innerHTML += `<p>-----</p>`
+        })
+        console_body.innerHTML += "<p>NOVE PRIPOJENI</p>";
+        console_body.innerHTML += "<p>-----</p>";
+
+        data.terminal.joined.forEach(x => {
+            console_body.innerHTML += `<p>${x}</p>`
+        })}
+
+
+
+
+</script>
+</body>
+</html>

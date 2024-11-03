@@ -70,6 +70,7 @@
     </style>
 </head>
 <body>
+
 <div class="button-container">
     <button class="toggle-button" onclick="showSection('objednavka')">
         <img src="img/kafeimg.png" alt="Objednavka"/>
@@ -85,8 +86,7 @@
 <h1 style="text-align: center" id="customer-header">Uživatel </h1>
 <!-- Objednavka Section -->
 <div id="objednavka" class="section active">
-    <h1>Burza</h1>
-
+    <h1>Objednávky</h1>
 
     <div class="form-container">
 
@@ -139,7 +139,7 @@
     </div>
 </div>
 
-
+<img src="img/qr.png" alt="QR"  name = "kafeim" id="kafeimg" width="100px" height="100px">
 <script src="app.js"></script>
 
 <script>
@@ -151,6 +151,26 @@
 
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
+
+
+    months =
+        [
+            "leden",
+            "únor",
+            "březen",
+            "duben", "květěn",
+            "červen",
+            "červenec", "srpen", "září",
+            "říjen",
+            "listopad",
+            "prosinec"
+
+        ]
+
+    const currentDate = new Date();
+    const currentMonth = months[currentDate.getMonth()];
+    const currentYear = currentDate.getFullYear();
+
 
     const xhttp = new XMLHttpRequest();
 
@@ -179,7 +199,7 @@
 
 
     }
-    xhttp.open("GET", "http://localhost:8082/getAllDrinks", true);
+    xhttp.open("GET", "http://s-jonas-24.dev.spsejecna.net/getAllDrinks", true);
     xhttp.send();
 
 
@@ -195,7 +215,7 @@
 
     document.getElementById("customer-header").innerHTML += username;
 
-    const ws = new WebSocket('ws://localhost:8082');
+    const ws = new WebSocket('ws://s-jonas-24.dev.spsejecna.net');
 
     let connId;
 
@@ -238,8 +258,16 @@
 
 
         console_body.innerHTML = "";
-        console_body.innerHTML += "<p>UZIVATELSKE UDAJE</p>";
+        console_body.innerHTML += `<p>UZIVATELSKE UDAJE: ${currentMonth} ${currentYear} </p>`;
         console_body.innerHTML += `<p>-----</p>`
+
+        if(data.type === "error")
+        {
+            console_body.innerHTML += `<p>${data.message}/p>`
+            return;
+        }
+
+
         data.terminal.drink_data.forEach(x => {
 
             console_body.innerHTML += `<p>${x.username}:</p>`

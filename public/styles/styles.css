@@ -14,6 +14,7 @@
     background-color: #f8f8f8;
 }
 
+
 .qrcode-body {
     display: flex;
     flex-direction: column;
@@ -28,6 +29,8 @@
     display: flex;
     align-items: center;
     gap: 10px; /* Space between elements */
+    margin-top: 30px;
+    text-align: center;
     margin-bottom: 20px;
 }
 
@@ -111,7 +114,9 @@ input[type="text"], input[type="password"] {
     border-radius: 20px;
     padding: 10px 30px;
     font-size: 16px;
-    margin-top: 20px;
+
+    margin: 20px auto;
+    display: block;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -123,14 +128,15 @@ input[type="text"], input[type="password"] {
 }
 
 /* KAFE image styling */
-img[name="kafeimg"] {
+#kafeimg {
     display: block;
-    margin: 20px auto 0; 
+    margin: 75px auto;
     max-width: 100px;     
     width: 50%;           
     height: auto;         
     padding-left: 10px;
 }
+
 
 #coffee-form
 {
@@ -160,6 +166,11 @@ img[name="kafeimg"] {
 .break
 {
     width: 100%;
+}
+
+.filler
+{
+    visibility: hidden;
 }
 
 
@@ -209,13 +220,20 @@ img[name="kafeimg"] {
 }
 
 /* Dropdown and Problem Button */
-#problemDropdown {
+#problem-dropdown {
     font-size: 1em;
     padding: 8px 10px;
+    background-color: #666666;
+    width: 20%;
     border: 1px solid #ccc;
-    border-radius: 20px;
+    border-radius: 2px;
     background-color: #eee;
     cursor: pointer;
+}
+
+option
+{
+
 }
 
 #addProblemButton {
@@ -373,7 +391,7 @@ img[name="kafeimg"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    margin-top: 20px;
     color: #000000;
 }
 

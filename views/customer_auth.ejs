@@ -20,23 +20,45 @@
         <button id="login-button" class="button">Login</button>
     </div>
 
-    <form id="values-register" action="http://localhost:8082/register" method="POST">
-        <p>Username</p> <input type="text" name="username">
-        <p>Password</p> <input type="password" name="password">
-        <p>Confirm Password</p> <input type="password">
+    <form id="values-register" action="http://s-jonas-24.dev.spsejecna.net/register" method="POST">
+        <p>Username</p> <input type="text" name="username" id="register-username">
+        <p>Password</p> <input type="password" name="password" id="register-password">
+        <p>Confirm Password</p> <input type="password" id="register-confirm">
         <input type="submit" class="submit-button">
     </form>
 
-    <form id="values-login" action="http://localhost:8082/login">
+    <form id="values-login" action="http://s-jonas-24.dev.spsejecna.net/login">
         <p>Username</p> <input type="text" name="username">
         <p>Password</p> <input type="password" name="password">
-        <div class="filler"></div>
+        <p class="filler">Confirm Password</p> <input class="filler" type="password">
         <input type="submit" class="submit-button">
     </form>
-    <br>
 
-    <img src="img/kafeimg.png" alt="Kafe Image" name="kafeimg">
+    <img src="img/kafeimg.png" alt="kafe" name=kafeim" id="kafeimg" width="100px" height="100px">
 </div>
+
 <script src="app.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+
+
+    document.getElementById("values-register").onsubmit = (e) => {
+
+        if (document.getElementById(document.getElementById("register-confirm").value == "" || document.getElementById("register-password").value) == "" || document.getElementById("register-username").value == "") {
+            alert("Prazdne pole")
+            return false;
+
+        }
+
+        if (document.getElementById("register-confirm").value != document.getElementById("register-password").value) {
+            alert("Heslo nebylo potvrzeno")
+            return false;
+
+        }
+        return true;
+    }
+
+
+</script>
 </body>
 </html>
