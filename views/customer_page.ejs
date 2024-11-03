@@ -82,7 +82,7 @@
     </button>
 </div>
 
-<h1 style="text-align: center">Uživatel <%= locals.username %></h1>
+<h1 style="text-align: center" id="customer-header">Uživatel </h1>
 <!-- Objednavka Section -->
 <div id="objednavka" class="section active">
     <h1>Burza</h1>
@@ -140,7 +140,6 @@
 </div>
 
 
-
 <script src="app.js"></script>
 
 <script>
@@ -149,6 +148,7 @@
         const parts = value.split(`; ${name}=`);
 
         console.log(value);
+
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
 
@@ -187,24 +187,13 @@
     const problemDropdown = document.getElementById("problem-dropdown");
     const problemList = document.getElementById("problem-list");
 
-    addProblemButton.addEventListener("click", () => {
-        const selectedProblem = problemDropdown.value;
 
-        if (selectedProblem) {
-            const problemItem = document.createElement("div");
-            problemItem.className = "problem-item";
-            problemItem.textContent = selectedProblem;
-            problemList.appendChild(problemItem);
-
-            // Reset dropdown after adding the problem
-            problemDropdown.value = "";
-        } else {
-            alert("Please select a problem to add.");
-        }
-    });
-
+    let username = getCookie("username");
 
     let customer_id = getCookie("customer_id");
+
+
+    document.getElementById("customer-header").innerHTML += username;
 
     const ws = new WebSocket('ws://localhost:8082');
 
@@ -212,6 +201,27 @@
 
     ws.onopen = () => {
         console.log('Connected to the WebSocket server');
+    };
+
+
+    addProblemButton.onclick = (x) => {
+        const selectedProblem = problemDropdown.value;
+        //alert(problemDropdown.value);
+
+
+        if (selectedProblem) {
+            const ws_data = {
+                section: "task", customer_id: customer_id, data:
+                    {
+                        action: "register",
+                        task_type_id: selectedProblem
+                    }
+            }
+
+            ws.send(JSON.stringify({ws_data}));
+        } else {
+            alert("Please select a problem to add.");
+        }
     };
 
     ws.onmessage = (event) => {
@@ -223,33 +233,88 @@
 
 
         let console_body = document.getElementById("console-body");
-        let tasks = document.getElementById("console-body");
+        let problem_dropdown = document.getElementById("problem-dropdown");
+        let problem_list = document.getElementById("problem-list");
 
 
         console_body.innerHTML = "";
+        console_body.innerHTML += "<p>UZIVATELSKE UDAJE</p>";
+        console_body.innerHTML += `<p>-----</p>`
         data.terminal.drink_data.forEach(x => {
 
-            console_body.append(document.createTextNode(x.username + ":"))
+            console_body.innerHTML += `<p>${x.username}:</p>`
             x.data.forEach(y => {
-                console_body.innerHTML += "<br>";
-                console_body.append(document.createTextNode(y.drink_name + " " + y.amount));
+
+                console_body.innerHTML += `<p>     -${y.drink_name + " x" + y.amount}</p>`
 
             })
-            console_body.innerHTML += "<br><br>";
+            console_body.innerHTML += `<p>-----</p>`
         })
-        console_body.innerHTML += "<br>--------------------<br>";
+        console_body.innerHTML += "<p>NOVE PRIPOJENI</p>";
+        console_body.innerHTML += "<p>-----</p>";
 
         data.terminal.joined.forEach(x => {
-            console_body.append(document.createTextNode(x));
-            console_body.innerHTML += "<br>";
+            console_body.innerHTML += `<p>${x}</p>`
+        })
+
+        let tmpval = problem_dropdown.value;
+        problem_dropdown.innerHTML = "";
+
+
+        problem_list.innerHTML = "";
+
+        data.tasks.unregistered.forEach(x => {
+            problem_dropdown.innerHTML += `<option value="${x.task_id}">${x.task_text}</option>`
+        });
+
+        problem_dropdown.value = tmpval;
+        //
+        // data.tasks.registered.sort((a, b) => (a.customer_id === customer_id) ? 1 : -1);
+
+        data.tasks.registered.filter(x => x.username === username).forEach(x => {
+            problem_list.innerHTML += `<div class="problem-item problem-item-customer" id="td${x.task_id}">${x.task_text}<br>${x.username}</div>`
+        })
+
+        data.tasks.registered.filter(x => x.username !== username).forEach(x => {
+            let taken = x.username != null;
+
+            problem_list.innerHTML += `<div class="problem-item ${taken ? "problem-item-taken" : "problem-item-untaken"}" id="td${x.task_id}">${x.task_text}<br>${taken ? x.username : ""}</div>`
         })
 
 
-        // tasks.innerHTML = "";
-        // data.tasks.forEach(x => {
-        //     tasks.append(document.createTextNode(x.task_text + " > " + x.username));
-        //     tasks.innerHTML += "<br>";
-        // })
+        document.querySelectorAll(".problem-item-untaken").forEach(x => {
+            x.onclick = (y) => {
+
+                const ws_data = {
+                    section: "task", customer_id: customer_id, data:
+                        {
+                            action: "take",
+                            task_type_id: x.id.split("td")[1]
+                        }
+                }
+
+
+                ws.send(JSON.stringify({ws_data}));
+                //alert(x.id.split("td")[1])
+            };
+        });
+
+        document.querySelectorAll(".problem-item-customer").forEach(x => {
+            x.onclick = (y) => {
+
+                const ws_data = {
+                    section: "task", customer_id: customer_id, data:
+                        {
+                            action: "complete",
+                            task_type_id: x.id.split("td")[1]
+                        }
+                }
+
+
+                ws.send(JSON.stringify({ws_data}));
+                //alert(x.id.split("td")[1])
+            };
+        })
 
     };
 
@@ -263,7 +328,7 @@
 
         document.querySelectorAll(".drink-slider").forEach(slider => {
 
-            ws_data.data.drinks.push({drink_id: slider.name, amount: slider.value });
+            ws_data.data.drinks.push({drink_id: slider.name, amount: slider.value});
         });
 
         const obj = {name: "John", age: 30, city: "New York"};

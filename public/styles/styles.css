@@ -249,7 +249,19 @@ img[name="kafeimg"] {
     justify-content: space-between;
     font-size: 1em;
     max-width: 200px; 
-    width: 100%; 
+    width: 100%;
+    cursor: pointer;
+}
+
+.problem-item-taken
+{
+    background-color: orange;
+    cursor: default;
+}
+
+.problem-item-customer
+{
+    background-color: yellowgreen;
 }
 
 

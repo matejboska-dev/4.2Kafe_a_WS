@@ -2,6 +2,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const mysql = require("mysql");
+const {response} = require("express");
 
 
 // Create an express app and HTTP server
@@ -79,7 +80,7 @@ app.post("/register", (req, res) => {
         }
 
         conn.query("insert into Customer(username, password, register_date) values(?,?,?)", [req.body.username, req.body.password, getSqlDate()], (err, result) => {
-            res.redirect("/customer?username="+username);
+            res.cookie("username", req.query.username).cookie("customer_id", result.insertId).redirect("/customer");
         })
     })
 })
@@ -96,7 +97,7 @@ app.get("/login", (req, res) => {
         //console.log(customer_id);
 
         let id = results[0].customer_id;
-        res.cookie("customer_id", id).redirect("/customer?username="+req.query.username);
+        res.cookie("username", req.query.username).cookie("customer_id", id).redirect("/customer");
 
     });
 })
@@ -120,10 +121,7 @@ wss.on('connection', (ws) => {
     connId++;
     ws.on('message', (message) => {
 
-
-
         const parsedMessage = JSON.parse(message);
-
 
         let ws_data = parsedMessage.ws_data;
         const customer_id = ws_data.customer_id;
@@ -141,16 +139,6 @@ wss.on('connection', (ws) => {
 
         }
 
-
-        // const {connId, request} = parsedMessage;
-        //
-        // console.log("incoming message from " + message);
-        // const client = clients[connId];
-        //
-        // if (client.readyState === WebSocket.OPEN && request === ":)") {
-        //     console.log("sending a joke");
-        //     client.send(JSON.stringify({type: 'joke', response: jokes[Math.floor(Math.random() * jokes.length)]}));
-        // }
     });
 
     // When a client disconnects
@@ -191,6 +179,7 @@ function saveOrder(customer_id, data) {
 }
 
 function processTask(customer_id, data) {
+    console.log(data.action);
     if (data.action === "register") {
         conn.query("insert into CustomerTask (customer_id, task_type_id) values (null,?)", [data.task_type_id], (err, results) => {
 
@@ -210,7 +199,7 @@ function processTask(customer_id, data) {
     function generateResponseData() {
         responseData = {}
         responseData.terminal = {drink_data: [], joined: []}
-        responseData.tasks = []
+        responseData.tasks = {registered: [], unregistered: []}
 
         let date_time = new Date();
 
@@ -257,11 +246,22 @@ function processTask(customer_id, data) {
                 conn.query("select Customer.username, TaskType.task_text, TaskType.id as task_type_id from CustomerTask left join Customer on CustomerTask.customer_id = Customer.id inner join TaskType on CustomerTask.task_type_id = TaskType.id", (err, results) => {
 
                     for (data of results) {
-                        responseData.tasks.push({task_text: data.task_text, username: data.username});
+                        responseData.tasks.registered.push({task_text: data.task_text, username: data.username, task_id: data.task_type_id});
                     }
 
 
-                    sendToCustomers(responseData);
+                    conn.query("\n" +
+                        "select * from TaskType where id not in (select CustomerTask.task_type_id from CustomerTask)", (err, results) => {
+                        for (data of results)
+                        {
+                            responseData.tasks.unregistered.push({task_text: data.task_text, task_id: data.id});
+                        }
+                        //console.log(JSON.stringify(responseData.tasks));
+                        sendToCustomers(responseData);
+                    })
+
+
+
                     // console.log(JSON.stringify(responseData, null, 2));
                 })
             })
