@@ -23,9 +23,9 @@ let connId = 0;
 
 
 const conn = mysql.createConnection({
-    host: "localhost",
+    host: "127.0.0.1",
     user: "root",
-    password: "",
+    password: "root",
     database: "coffee",
     port: 3306
 });
@@ -60,7 +60,7 @@ app.get("/terminal", (req, res) => {
 
 app.get("/getAllDrinks", (req, res) => {
 
-    conn.query("SELECT * FROM drink", (err, results) => {
+    conn.query("SELECT * FROM Drink", (err, results) => {
         res.json(results);
     })
 })
@@ -79,7 +79,7 @@ app.post("/register", (req, res) => {
     conn.query("select count(*) as amount from Customer where username = ?", [req.body.username], (err, result) => {
 
         if (result[0].amount !== 0) {
-            res.status(401).send("username exists.");
+            res.redirect("/?err=exists")
             return;
         }
 
@@ -95,6 +95,11 @@ app.get("/login", (req, res) => {
 
     conn.query("select id as customer_id from Customer where username=? and password =?", [req.query.username, req.query.password], (err, results) => {
 
+
+        if (!results) {
+            res.redirect("/?err=¨"+err);
+            return;
+        }
         //res.json(customer_id);
         // res.json(cookieEncrypter.encryptCookie(customer_id.toString(),  {algorithm: "aes256", key:secretKey}));
         //res.cookie('customer_id', customer_id, cookieParams).send("customer_auth.ejs");
@@ -290,7 +295,7 @@ function processTask(customer_id, data) {
 
     setInterval(() => {
         generateResponseData();
-    }, 2000)
+    }, 500)
 
 
 //generateResponseData();

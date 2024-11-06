@@ -106,13 +106,6 @@
     <h2>Výběr problému</h2>
     <br>
     <select id="problem-dropdown">
-        <option value="">Vyberte problém</option>
-        <option value="Došlo mléko">Došlo mléko</option>
-        <option value="Došlo espresso">Došlo espresso</option>
-        <option value="Došlo coffee">Došlo coffee</option>
-        <option value="Došel long">Došel long</option>
-        <option value="Došlo doppio+">Došlo doppio+</option>
-        <option value="Vyčistit kávovar">Vyčistit kávovar</option>
     </select>
     <br><br>
     <button id="add-problem-button" class="button">Odeslat</button>
@@ -139,7 +132,7 @@
     </div>
 </div>
 
-<img src="img/qr.png" alt="QR"  name = "kafeim" id="kafeimg" width="100px" height="100px">
+<img src="img/qr.png" alt="QR" name="kafeim" id="kafeimg" width="100px" height="100px">
 <script src="app.js"></script>
 
 <script>
@@ -215,6 +208,7 @@
 
     document.getElementById("customer-header").innerHTML += username;
 
+
     const ws = new WebSocket('ws://s-jonas-24.dev.spsejecna.net');
 
     let connId;
@@ -244,6 +238,7 @@
         }
     };
 
+    let initOptions = true;
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'init') {
@@ -261,8 +256,7 @@
         console_body.innerHTML += `<p>UZIVATELSKE UDAJE: ${currentMonth} ${currentYear} </p>`;
         console_body.innerHTML += `<p>-----</p>`
 
-        if(data.type === "error")
-        {
+        if (data.type === "error") {
             console_body.innerHTML += `<p>${data.message}/p>`
             return;
         }
@@ -286,14 +280,48 @@
         })
 
         let tmpval = problem_dropdown.value;
-        problem_dropdown.innerHTML = "";
 
 
         problem_list.innerHTML = "";
 
-        data.tasks.unregistered.forEach(x => {
-            problem_dropdown.innerHTML += `<option value="${x.task_id}">${x.task_text}</option>`
-        });
+
+        let i = 0;
+        let same = true;
+
+
+        const options = document.querySelectorAll("option");
+
+        console.log("TASKS--------------")
+
+        if (options.length !== 0) {
+
+            for (option of options) {
+
+                console.log(i + "x " + data.tasks.unregistered.length);
+                if (data.tasks.unregistered[i]) {
+
+                    console.log(option.value + " " + data.tasks.unregistered[i].task_id)
+
+                    if (option.value != data.tasks.unregistered[i].task_id) {
+                        same = false;
+                        break;
+                    }
+                    i++;
+                }
+            }
+        }
+        console.log("TASKS--------------")
+
+        if (!same || initOptions) {
+            console.log(same);
+            problem_dropdown.innerHTML = "";
+            data.tasks.unregistered.forEach(x => {
+                problem_dropdown.innerHTML += `<option value="${x.task_id}">${x.task_text}</option>`
+            });
+        }
+
+
+        if (initOptions) initOptions = false;
 
         problem_dropdown.value = tmpval;
         //
@@ -364,6 +392,9 @@
 
         ws.send(JSON.stringify({ws_data}));
     }
+
+
+    websocketConn();
 
 
 </script>

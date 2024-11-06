@@ -223,8 +223,8 @@ input[type="text"], input[type="password"] {
 #problem-dropdown {
     font-size: 1em;
     padding: 8px 10px;
-    background-color: #666666;
     width: 20%;
+    min-width: 150px;
     border: 1px solid #ccc;
     border-radius: 2px;
     background-color: #eee;
